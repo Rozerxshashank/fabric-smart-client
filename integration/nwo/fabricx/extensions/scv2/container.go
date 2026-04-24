@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -34,7 +35,7 @@ var (
 	scalableCommitterImages = map[string]string{
 		v3.CommitterVersion: v3.ScalableCommitterImage,
 	}
-	envVars = map[string]func(peerMSPDir, scMSPID, channelName, ordererEndpoint string) []string{
+	envVars = map[string]func(peerMSPDir, peerTLSDir, scMSPID, channelName, ordererEndpoint string, tlsEnabled bool, ordererTLSCACert string) []string{
 		v3.CommitterVersion: v3.ContainerEnvVars,
 	}
 	containerCmds = map[string][]string{
@@ -74,7 +75,7 @@ func (e *Extension) launchContainer() {
 	scMSPID := fmt.Sprintf("%sMSP", orgName)
 
 	rootCryptoDir := rootCrypto(e.network)
-	peerMSPDir := peerDockerMSPDir(e.network, scPeer)
+	scMSPDir := peerDockerMSPDir(e.network, scPeer)
 
 	// genesis block
 	configBlockPath := e.network.OutputBlockPath(e.channel.Name)
@@ -96,8 +97,14 @@ func (e *Extension) launchContainer() {
 		extraHosts = append(extraHosts, "host.docker.internal:host-gateway")
 	}
 
-	containerEnvOverride := envVars[committerVersion](peerMSPDir, scMSPID, e.channel.Name, ordererEndpoint)
-	containerCmd := containerCmds[committerVersion]
+	scTLSDir := peerDockerTLSDir(e.network, scPeer)
+	ordererTLSCACert := filepath.Join("/", "root", "artifacts", "crypto", "ordererOrganizations", e.network.OrdererOrgs()[0].Domain, "orderers", fmt.Sprintf("%s.%s", e.network.Orderers[0].Name, e.network.OrdererOrgs()[0].Domain), "tls", "ca.crt")
+
+	containerEnvOverride := envVars[committerVersion](scMSPDir, scTLSDir, scMSPID, e.channel.Name, ordererEndpoint, e.network.TLSEnabled, ordererTLSCACert)
+	containerCmd := append([]string(nil), containerCmds[committerVersion]...)
+	if !e.network.TLSEnabled {
+		containerCmd = append(containerCmd, "--insecure")
+	}
 	containerSidecarPort := sidecarDefaultPort[committerVersion]
 	containerQueryServicePort := queryServiceDefaultPort[committerVersion]
 

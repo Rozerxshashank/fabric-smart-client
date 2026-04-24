@@ -30,6 +30,22 @@ func peerDockerMSPDir(n *network.Network, p *topology.Peer) string {
 	)
 }
 
+func peerDockerTLSDir(n *network.Network, p *topology.Peer) string {
+	org := n.Organization(p.Organization)
+
+	return filepath.Join(
+		"/",
+		"root",
+		"artifacts",
+		"crypto",
+		"peerOrganizations",
+		org.Domain,
+		"peers",
+		fmt.Sprintf("%s.%s", p.Name, org.Domain),
+		"tls",
+	)
+}
+
 func rootCrypto(n *network.Network) string {
 	return filepath.Join(
 		n.RootDir,
