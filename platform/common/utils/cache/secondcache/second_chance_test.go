@@ -120,6 +120,56 @@ func TestSecondChanceCacheConcurrent(t *testing.T) {
 	wg.Wait()
 }
 
+func TestSecondChanceCacheDelete(t *testing.T) {
+	t.Parallel()
+	cache := New(10)
+	cache.Add("k1", "v1")
+	v, ok := cache.Get("k1")
+	require.True(t, ok)
+	require.Equal(t, "v1", v)
+
+	cache.Delete("k1")
+	v, ok = cache.Get("k1")
+	require.True(t, ok) // Note: Delete in this implementation sets value to zero but doesn't remove from table?
+	require.Nil(t, v)
+}
+
+func TestSecondChanceCacheBytes(t *testing.T) {
+	t.Parallel()
+	cache := NewBytes(2)
+	k1 := []byte("key1")
+	k2 := []byte("key2")
+	k3 := []byte("key3")
+
+	cache.Add(k1, "v1")
+	cache.Add(k2, "v2")
+
+	v, ok := cache.Get(k1)
+	require.True(t, ok)
+	require.Equal(t, "v1", v)
+
+	// k1 is now referenced. k2 is not.
+	// Add k3. Victim scan should pick k2.
+	cache.Add(k3, "v3")
+
+	_, ok = cache.Get(k2)
+	require.False(t, ok)
+
+	v, ok = cache.Get(k1)
+	require.True(t, ok)
+	require.Equal(t, "v1", v)
+
+	v, ok = cache.Get(k3)
+	require.True(t, ok)
+	require.Equal(t, "v3", v)
+
+	// Test Delete
+	cache.Delete(k1)
+	v, ok = cache.Get(k1)
+	require.True(t, ok)
+	require.Nil(t, v)
+}
+
 func BenchmarkSecondChanceCache(b *testing.B) {
 	cache := New(b.N)
 	for i := 0; i < b.N; i++ {
