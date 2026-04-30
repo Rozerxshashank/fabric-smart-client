@@ -64,7 +64,7 @@ func (d *Docker) CheckImagesExist(requiredImages ...string) error {
 			return err
 		}
 
-		if len(images.Items) != 1 {
+		if len(images.Items) == 0 {
 			return errors.Errorf("missing required image: %s", imageName)
 		}
 	}
