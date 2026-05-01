@@ -83,8 +83,8 @@ func TestGetRevocationHandle_BadBlockType(t *testing.T) {
 	require.Contains(t, err.Error(), "bad block type")
 }
 
+//nolint:paralleltest
 func TestLoadLocalMSPSignerCert(t *testing.T) {
-	t.Parallel()
 	cert, err := LoadLocalMSPSignerCert("./testdata/msp")
 	require.NoError(t, err)
 	require.NotEmpty(t, cert)
@@ -126,8 +126,8 @@ func TestGetPemMaterialFromDir_SkipsSubdirs(t *testing.T) {
 	require.Empty(t, certs)
 }
 
+//nolint:paralleltest
 func TestGetBCCSPFromConf_SW(t *testing.T) {
-	t.Parallel()
 	dir := t.TempDir()
 	csp, ks, err := GetBCCSPFromConf(dir, "", nil)
 	require.NoError(t, err)
@@ -144,8 +144,8 @@ func TestGetBCCSPFromConf_InvalidDefault(t *testing.T) {
 	require.Contains(t, err.Error(), "invalid config.BCCSP.Default")
 }
 
+//nolint:paralleltest
 func TestGetSWBCCSP(t *testing.T) {
-	t.Parallel()
 	dir := t.TempDir()
 	csp, ks, err := GetSWBCCSP(dir)
 	require.NoError(t, err)
@@ -153,29 +153,29 @@ func TestGetSWBCCSP(t *testing.T) {
 	require.NotNil(t, ks)
 }
 
+//nolint:paralleltest
 func TestLoadLocalMSPAt_InvalidType(t *testing.T) {
-	t.Parallel()
 	_, err := LoadLocalMSPAt("./testdata/msp", "", "apple", "invalid", nil)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "invalid msp type")
 }
 
+//nolint:paralleltest
 func TestLoadVerifyingMSPAt_InvalidType(t *testing.T) {
-	t.Parallel()
 	_, err := LoadVerifyingMSPAt("./testdata/msp", "apple", "invalid")
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "invalid msp type")
 }
 
+//nolint:paralleltest
 func TestSerializeFromMSP(t *testing.T) {
-	t.Parallel()
 	raw, err := SerializeFromMSP("apple", "./testdata/msp")
 	require.NoError(t, err)
 	require.NotEmpty(t, raw)
 }
 
+//nolint:paralleltest
 func TestSerializeFromMSP_InvalidPath(t *testing.T) {
-	t.Parallel()
 	_, err := SerializeFromMSP("apple", "/nonexistent")
 	require.Error(t, err)
 }
@@ -223,8 +223,8 @@ func TestGetPKCS11BCCSP_NilConfig(t *testing.T) {
 	require.Contains(t, err.Error(), "missing configuration")
 }
 
+//nolint:paralleltest
 func TestGetBCCSPFromConf_ExplicitSW(t *testing.T) {
-	t.Parallel()
 	dir := t.TempDir()
 	conf := &config.BCCSP{Default: "SW"}
 	csp, ks, err := GetBCCSPFromConf(dir, "", conf)
@@ -242,8 +242,8 @@ func TestGetBCCSPFromConf_PKCS11NilOpts(t *testing.T) {
 	require.Contains(t, err.Error(), "missing configuration")
 }
 
+//nolint:paralleltest
 func TestGetBCCSPFromConf_CustomKeyStorePath(t *testing.T) {
-	t.Parallel()
 	dir := t.TempDir()
 	ksDir := t.TempDir()
 	csp, ks, err := GetBCCSPFromConf(dir, ksDir, nil)
@@ -281,8 +281,8 @@ func TestGetPemMaterialFromDir_SkipsNonPEM(t *testing.T) {
 	require.Empty(t, certs)
 }
 
+//nolint:paralleltest
 func TestGetSigningIdentity(t *testing.T) {
-	t.Parallel()
 	sID, err := GetSigningIdentity("./testdata/msp", "", "apple", nil)
 	require.NoError(t, err)
 	require.NotNil(t, sID)
@@ -292,21 +292,21 @@ func TestGetSigningIdentity(t *testing.T) {
 	require.NotEmpty(t, raw)
 }
 
+//nolint:paralleltest
 func TestGetSigningIdentity_InvalidPath(t *testing.T) {
-	t.Parallel()
 	_, err := GetSigningIdentity("/nonexistent", "", "msp1", nil)
 	require.Error(t, err)
 }
 
+//nolint:paralleltest
 func TestLoadLocalMSPAt(t *testing.T) {
-	t.Parallel()
 	mspInst, err := LoadLocalMSPAt("./testdata/msp", "", "apple", BCCSPType, nil)
 	require.NoError(t, err)
 	require.NotNil(t, mspInst)
 }
 
+//nolint:paralleltest
 func TestLoadVerifyingMSPAt(t *testing.T) {
-	t.Parallel()
 	mspInst, err := LoadVerifyingMSPAt("./testdata/msp", "apple", BCCSPType)
 	require.NoError(t, err)
 	require.NotNil(t, mspInst)
